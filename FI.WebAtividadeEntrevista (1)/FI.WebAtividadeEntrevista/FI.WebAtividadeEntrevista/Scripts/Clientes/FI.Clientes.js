@@ -20,20 +20,23 @@
                 secondCount--;
             }
             if ((firstTotal * 10) % 11 == parseInt(rawCpf[9]) && (secondTotal * 10) % 11 == parseInt(rawCpf[10])) {
+                const info = {
+                    "NOME": $(this).find("#Nome").val(),
+                        "CEP": $(this).find("#CEP").val(),
+                            "CPF": rawCpf,
+                                "Email": $(this).find("#Email").val(),
+                                    "Sobrenome": $(this).find("#Sobrenome").val(),
+                                        "Nacionalidade": $(this).find("#Nacionalidade").val(),
+                                            "Estado": $(this).find("#Estado").val(),
+                                                "Cidade": $(this).find("#Cidade").val(),
+                                                    "Logradouro": $(this).find("#Logradouro").val(),
+                                                        "Telefone": $(this).find("#Telefone").val(),
+                                }
                 $.ajax({
-                    url: urlPost,
+                    url: urlExistencia,
                     method: "POST",
                     data: {
-                        "NOME": $(this).find("#Nome").val(),
-                        "CEP": $(this).find("#CEP").val(),
-                        "CPF": $(this).find("#CPF").val().replaceAll(".", "").replace("-", ""),
-                        "Email": $(this).find("#Email").val(),
-                        "Sobrenome": $(this).find("#Sobrenome").val(),
-                        "Nacionalidade": $(this).find("#Nacionalidade").val(),
-                        "Estado": $(this).find("#Estado").val(),
-                        "Cidade": $(this).find("#Cidade").val(),
-                        "Logradouro": $(this).find("#Logradouro").val(),
-                        "Telefone": $(this).find("#Telefone").val(),
+                        "CPF": rawCpf,
                     },
                     error:
                         function (r) {
@@ -43,10 +46,56 @@
                                 ModalDialog("Ocorreu um erro", "Ocorreu um erro interno no servidor.");
                         },
                     success:
-                        function (r) {
-                            ModalDialog("Sucesso!", r)
-                            $("#formCadastro")[0].reset();
-                        }
+                        function (exists) {
+                            if(exists == "Sucesso")
+                                $.ajax({
+                                    url: urlPost,
+                                    method: "POST",
+                                    data: info,
+                                    error:
+                                        function (r) {
+                                            if (r.status == 400)
+                                                ModalDialog("Ocorreu um erro", r.responseJSON);
+                                            else if (r.status == 500)
+                                                ModalDialog("Ocorreu um erro", "Ocorreu um erro interno no servidor.");
+                                        },
+                                    success:
+                                        function (r) {
+                                            if (window.beneficentes != {}) {
+                                                for (const key in window.beneficentes) {
+                                                    $.ajax({
+                                                        url: urlBeneficiario,
+                                                        method: "POST",
+                                                        data: {
+                                                            "CPF": key,
+                                                            "Nome": window.beneficentes[key],
+                                                            "IdCliente": r
+                                                        },
+                                                        error:
+                                                            function (r) {
+                                                                if (r.status == 400)
+                                                                    ModalDialog("Ocorreu um erro", r.responseJSON);
+                                                                else if (r.status == 500)
+                                                                    ModalDialog("Ocorreu um erro", "Ocorreu um erro interno no servidor.");
+                                                            },
+                                                        success:
+                                                            function (r) {
+                                                                ModalDialog("Sucesso!", "Cadastro efetuado com sucesso")
+                                                                $("#formCadastro")[0].reset();
+                                                            }
+                                                    })
+                                                }
+
+                                            } else {
+                                                ModalDialog("Sucesso!", "Cadastro efetuado com sucesso")
+                                                $("#formCadastro")[0].reset();
+                                            }
+                                        }
+                                });
+                            else {
+                                ModalDialog("Ocorreu um erro", "CPF já cadastrado");
+                            }
+                        } 
                 });
             } else {
                 ModalDialog("Ocorreu um erro", "CPF Inválido");

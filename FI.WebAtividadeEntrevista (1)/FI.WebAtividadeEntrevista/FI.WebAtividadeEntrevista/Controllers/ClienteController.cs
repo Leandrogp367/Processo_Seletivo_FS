@@ -54,8 +54,77 @@ namespace WebAtividadeEntrevista.Controllers
                 });
 
            
-                return Json("Cadastro efetuado com sucesso");
+                return Json(model.Id);
             }
+        }
+
+        [HttpPost]
+        public JsonResult Beneficiario(BeneficiarioModel model)
+        {
+            BoCliente bo = new BoCliente();
+
+            if (!this.ModelState.IsValid)
+            {
+                List<string> erros = (from item in ModelState.Values
+                                      from error in item.Errors
+                                      select error.ErrorMessage).ToList();
+
+                Response.StatusCode = 400;
+                return Json(string.Join(Environment.NewLine, erros));
+            }
+            else
+            {
+
+                model.Id = bo.Beneficiario(new Beneficiario()
+                { 
+                    Nome = model.Nome,
+                    CPF = model.CPF,
+                    IdCliente = model.IdCliente
+                });
+
+
+                return Json(model.Id);
+            }
+        }
+
+        [HttpPost]
+        public JsonResult VerificarExistencia(ClienteModel model)
+        {
+            BoCliente bo = new BoCliente();
+
+            if(bo.VerificarExistencia( model.CPF))
+            {
+               return Json("CPF já existente");
+            }
+
+
+            return Json("Sucesso");
+        }
+
+        [HttpPost]
+        public JsonResult GetBeneficiarios(BeneficiarioModel model)
+        {
+            BoCliente bo = new BoCliente();
+
+            List<Beneficiario> beneficiarios = bo.GetBeneficiarios(model.IdCliente);
+
+            Dictionary<string, string> beneficentes = new Dictionary<string, string>();
+
+            foreach(Beneficiario ben in beneficiarios)
+            {
+                beneficentes.Add(ben.CPF, ben.Nome);
+            }
+            return Json(beneficentes);
+        }
+
+        [HttpPost]
+        public JsonResult ResetBeneficiarios(BeneficiarioModel model)
+        {
+            BoCliente bo = new BoCliente();
+
+            bool beneficiarios = bo.ResetBeneficiarios(model.IdCliente);
+
+            return Json(beneficiarios);
         }
 
         [HttpPost]

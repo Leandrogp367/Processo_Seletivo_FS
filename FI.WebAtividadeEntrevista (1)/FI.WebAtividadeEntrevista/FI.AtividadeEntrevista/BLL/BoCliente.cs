@@ -69,6 +69,24 @@ namespace FI.AtividadeEntrevista.BLL
         }
 
         /// <summary>
+        /// Lista os Beneficiarios
+        /// </summary>
+        public List<DML.Beneficiario> GetBeneficiarios(long IdCliente)
+        {
+            DAL.DaoCliente cli = new DAL.DaoCliente();
+            return cli.Pesquisa(IdCliente);
+        }
+
+        /// <summary>
+        /// Reseta os Beneficiarios
+        /// </summary>
+        public bool ResetBeneficiarios(long IdCliente)
+        {
+            DAL.DaoCliente cli = new DAL.DaoCliente();
+            return cli.Reset(IdCliente);
+        }
+
+        /// <summary>
         /// VerificaExistencia
         /// </summary>
         /// <param name="CPF"></param>
@@ -77,6 +95,16 @@ namespace FI.AtividadeEntrevista.BLL
         {
             DAL.DaoCliente cli = new DAL.DaoCliente();
             return cli.VerificarExistencia(CPF);
+        }
+
+        /// <summary>
+        /// Inclui um novo cliente
+        /// </summary>
+        /// <param name="cliente">Objeto de cliente</param>
+        public long Beneficiario(DML.Beneficiario beneficiario)
+        {
+            DAL.DaoCliente cli = new DAL.DaoCliente();
+            return cli.Incluir(beneficiario);
         }
     }
 }
